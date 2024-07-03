@@ -9,7 +9,7 @@ public:
     void Initialize();
     void Update();
     void Draw(HWND hWnd);
-    void HandleInput(WPARAM wParam);
+    void HandleInput(WPARAM wParam, HWND hWnd);
 
     static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

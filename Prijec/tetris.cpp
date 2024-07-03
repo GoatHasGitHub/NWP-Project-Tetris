@@ -1,20 +1,18 @@
 #include "tetris.h"
 
 void Tetris::Initialize() {
-    for (int x = 0; x < BOARD_WIDTH; ++x)
-        for (int y = 0; y < BOARD_HEIGHT; ++y)
-            board[x][y] = 0;
+    board.resize(BOARD_HEIGHT, std::vector<int>(BOARD_HEIGHT, 0));
 
     pieceX = BOARD_WIDTH / 2;
     pieceY = 0;
 
-    int piece[4][4] = {
+    std::array<std::array<int, 4>, 4> piece = { {
         {0, 1, 0, 0},
         {0, 1, 0, 0},
         {0, 1, 1, 0},
         {0, 0, 0, 0}
-    };
-    memcpy(currentPiece, piece, sizeof(piece));
+    } };
+    currentPiece = piece;
 }
 
 void Tetris::Update() {
@@ -47,24 +45,64 @@ void Tetris::DrawBlock(HDC hdc, int x, int y, bool filled) {
     FillRect(hdc, &rect, (HBRUSH)(filled ? GetStockObject(BLACK_BRUSH) : GetStockObject(WHITE_BRUSH)));
 }
 
+bool Tetris::IsPositionValid(int newX, int newY, const std::array<std::array<int, 4>, 4>& piece) {
+    for (int x = 0; x < 4; ++x) {
+        for (int y = 0; y < 4; ++y) {
+            if (piece[x][y]) {
+                int boardX = newX + x;
+                int boardY = newY + y;
+                if (boardX < 0 || boardX >= BOARD_WIDTH || boardY < 0 || boardY >= BOARD_HEIGHT || board[boardX][boardY]) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 void Tetris::MoveLeft() {
-    --pieceX;
+    if (IsPositionValid(pieceX - 1, pieceY, currentPiece)) {
+        --pieceX;
+    }
 }
 
 void Tetris::MoveRight() {
-    ++pieceX;
+    if (IsPositionValid(pieceX + 1, pieceY, currentPiece)) {
+        ++pieceX;
+    }
 }
 
 void Tetris::MoveDown() {
-    ++pieceY;
+    if (IsPositionValid(pieceX, pieceY + 1, currentPiece)) {
+        ++pieceY;
+    }
+    else {
+        // Lock piece in place and reset
+        for (int x = 0; x < 4; ++x) {
+            for (int y = 0; y < 4; ++y) {
+                if (currentPiece[x][y]) {
+                    board[pieceX + x][pieceY + y] = 1;
+                }
+            }
+        }
+        pieceX = BOARD_WIDTH / 2;
+        pieceY = 0;
+
+        std::array<std::array<int, 4>, 4> piece = { {
+            {0,1,0,0},
+            {0,1,0,0},
+            {0,1,1,0},
+            {0,0,0,0}
+} };
+    }
 }
 
 void Tetris::Rotate() {
-    int rotatedPiece[4][4];
+    std::array<std::array<int,4>,4> rotatedPiece;
     for (int x = 0; x < 4; ++x) {
         for (int y = 0; y < 4; ++y) {
             rotatedPiece[y][3 - x] = currentPiece[x][y];
         }
     }
-    memcpy(currentPiece, rotatedPiece, sizeof(rotatedPiece));
+    currentPiece = rotatedPiece;
 }

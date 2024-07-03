@@ -1,6 +1,8 @@
 #define TETRIS_H
 
 #include <windows.h>
+#include <vector>
+#include <array>
 
 class Tetris {
 public:
@@ -15,9 +17,10 @@ public:
 private:
     static const int BOARD_WIDTH = 10;
     static const int BOARD_HEIGHT = 20;
-    int board[BOARD_WIDTH][BOARD_HEIGHT];
-    int currentPiece[4][4];
+    std::vector<std::vector<int>> board;
+    std::array<std::array<int, 4>, 4> currentPiece;
     int pieceX, pieceY;
 
     void DrawBlock(HDC hdc, int x, int y, bool filled);
+    bool IsPositionValid(int newX, int newY, const std::array<std::array<int, 4>, 4>& piece);
 };

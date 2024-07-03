@@ -15,13 +15,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wcex.lpszClassName = "TetrisClass";
     wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 
-    RegisterClassEx(&wcex);
+    if (!RegisterClassEx(&wcex)) {
+        MessageBox(NULL, "Call to RegisterClassEx Failed", "Windows Destop Guided tour", NULL);
+        return 1;
+    }
 
     HWND hWnd = CreateWindow("TetrisClass", "Tetris", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
     if (!hWnd) {
-        return FALSE;
+        MessageBox(NULL, "Call to CreateWindow Failed", "Windows Destop Guided tour", NULL);
+        return 1;
     }
 
     ShowWindow(hWnd, nCmdShow);
