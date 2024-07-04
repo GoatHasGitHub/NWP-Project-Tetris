@@ -1,57 +1,116 @@
 #include "tetris.h"
+#include <array>
+#include <vector>
+
+// Tetriminoi
+std::array<std::array<std::array<int, 4>, 4>, 7> shapes = { {
+    {{ {1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // I
+    {{ {1, 1, 1, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // J
+    {{ {1, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // L
+    {{ {1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // O
+    {{ {1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // S
+    {{ {1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // T
+    {{ {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }}   // Z
+} };
+
+Tetris::Tetris() {
+    Initialize();
+}
 
 void Tetris::Initialize() {
-    board.resize(BOARD_HEIGHT, std::vector<int>(BOARD_HEIGHT, 0));
-
-    pieceX = BOARD_WIDTH / 2;
-    pieceY = 0;
-
-    std::array<std::array<int, 4>, 4> piece = { {
-        {0, 1, 0, 0},
-        {0, 1, 0, 0},
-        {0, 1, 1, 0},
-        {0, 0, 0, 0}
-    } };
-    currentPiece = piece;
+    board.fill({ 0 });
+    NewPiece();
+    gameOver = false;
 }
 
-void Tetris::Update() {
-    MoveDown();
+void Tetris::NewPiece() {
+    currentPiece = shapes[rand() % shapes.size()];
+    currentX = 3;
+    currentY = 0;
+
+    if (!CanMove(currentPiece, currentX, currentY)) {
+        gameOver = true;
+    }
 }
 
-void Tetris::Draw(HDC hdc) {
-    for (int x = 0; x < BOARD_WIDTH; ++x) {
-        for (int y = 0; y < BOARD_HEIGHT; ++y) {
-            DrawBlock(hdc, x, y, board[x][y]);
+void Tetris::MoveLeft() {
+    if (CanMove(currentPiece, currentX - 1, currentY)) {
+        currentX--;
+    }
+}
+
+void Tetris::MoveRight() {
+    if (CanMove(currentPiece, currentX + 1, currentY)) {
+        currentX++;
+    }
+}
+
+void Tetris::MoveDown() {
+    if (CanMove(currentPiece, currentX, currentY + 1)) {
+        currentY++;
+    }
+    else {
+        PlacePiece();
+        ClearLines();
+        NewPiece();
+    }
+}
+
+void Tetris::Rotate() {
+    std::array<std::array<int, 4>, 4> rotatedPiece;
+    for (int y = 0; y < 4; y++) {
+        for (int x = 0; x < 4; x++) {
+            rotatedPiece[x][3 - y] = currentPiece[y][x];
         }
     }
 
-    for (int x = 0; x < 4; ++x) {
-        for (int y = 0; y < 4; ++y) {
-            if (currentPiece[x][y]) {
-                DrawBlock(hdc, pieceX + x, pieceY + y, true);
+    if (CanMove(rotatedPiece, currentX, currentY)) {
+        currentPiece = rotatedPiece;
+    }
+}
+
+void Tetris::PlacePiece() {
+    for (int y = 0; y < BOARD_HEIGHT; y++) {
+        for (int x = 0; x < BOARD_HEIGHT; x++) {
+            if (currentPiece[y][x]) {
+                board[currentY + y][currentX + x] = currentPiece[y][x];
             }
         }
     }
 }
 
-void Tetris::DrawBlock(HDC hdc, int x, int y, bool filled) {
-    
-    RECT rect;
-    rect.left = x * 20;
-    rect.top = y * 20;
-    rect.right = rect.left + 20;
-    rect.bottom = rect.top + 20;
-    FillRect(hdc, &rect, (HBRUSH)(filled ? GetStockObject(BLACK_BRUSH) : GetStockObject(WHITE_BRUSH)));
+void Tetris::ClearLines() {
+    for (int y = 0; y < BOARD_HEIGHT; y++) {
+        bool fullLine = true;
+        for (int x = 0; x < BOARD_WIDTH; x++) {
+            if (!board[y][x]) {
+                fullLine = false;
+                break;
+            }
+        }
+        if (fullLine) {
+            for (int yy = y; yy > 0; yy--) {
+                for (int xx = 0; xx < BOARD_WIDTH; xx++) {
+                    board[yy][xx] = board[yy - 1][xx];
+                }
+            }
+            for (int xx = 0; xx < BOARD_WIDTH; xx++) {
+                board[0][xx] = 0;
+            }
+        }
+    }
 }
 
-bool Tetris::IsPositionValid(int newX, int newY, const std::array<std::array<int, 4>, 4>& piece) {
-    for (int x = 0; x < 4; ++x) {
-        for (int y = 0; y < 4; ++y) {
-            if (piece[x][y]) {
-                int boardX = newX + x;
-                int boardY = newY + y;
-                if (boardX < 0 || boardX >= BOARD_WIDTH || boardY < 0 || boardY >= BOARD_HEIGHT || board[boardX][boardY]) {
+bool Tetris::CanMove(const std::array<std::array<int, 4>, 4>& piece, int x, int y) const {
+    for (int py = 0; py < 4; py++) {
+        for (int px = 0; px < 4; px++) {
+            if (piece[py][px]) {
+                int boardX = x + px;
+                int boardY = y + py;
+                if (boardX < 0 || boardX >= BOARD_WIDTH || boardY < 0 || boardY >= BOARD_HEIGHT) {
+                    return false;
+                }
+                if (board[boardY][boardX]) {
                     return false;
                 }
             }
@@ -60,49 +119,38 @@ bool Tetris::IsPositionValid(int newX, int newY, const std::array<std::array<int
     return true;
 }
 
-void Tetris::MoveLeft() {
-    if (IsPositionValid(pieceX - 1, pieceY, currentPiece)) {
-        --pieceX;
-    }
+void Tetris::Update() {
+
 }
 
-void Tetris::MoveRight() {
-    if (IsPositionValid(pieceX + 1, pieceY, currentPiece)) {
-        ++pieceX;
-    }
-}
+void Tetris::Draw(HDC hdc) {
+    RECT rect;
+    for (int y = 0; y < BOARD_HEIGHT; y++) {
+        for (int x = 0; x < BOARD_WIDTH; x++) {
+            rect.left = x * 30;
+            rect.top = y * 30;
+            rect.right = rect.left + 30;
+            rect.bottom = rect.top + 30;
 
-void Tetris::MoveDown() {
-    if (IsPositionValid(pieceX, pieceY + 1, currentPiece)) {
-        ++pieceY;
-    }
-    else {
-        // Lock piece in place and reset
-        for (int x = 0; x < 4; ++x) {
-            for (int y = 0; y < 4; ++y) {
-                if (currentPiece[x][y]) {
-                    board[pieceX + x][pieceY + y] = 1;
-                }
+            if (board[y][x]) {
+                FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+            }
+            else {
+                FrameRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
             }
         }
-        pieceX = BOARD_WIDTH / 2;
-        pieceY = 0;
-
-        std::array<std::array<int, 4>, 4> piece = { {
-            {0,1,0,0},
-            {0,1,0,0},
-            {0,1,1,0},
-            {0,0,0,0}
-} };
     }
-}
 
-void Tetris::Rotate() {
-    std::array<std::array<int,4>,4> rotatedPiece;
-    for (int x = 0; x < 4; ++x) {
-        for (int y = 0; y < 4; ++y) {
-            rotatedPiece[y][3 - x] = currentPiece[x][y];
+    // Draw the current piece
+    for (int py = 0; py < 4; py++) {
+        for (int px = 0; px < 4; px++) {
+            if (currentPiece[py][px]) {
+                rect.left = (currentX + px) * 30;
+                rect.top = (currentY + py) * 30;
+                rect.right = rect.left + 30;
+                rect.bottom = rect.top + 30;
+                FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+            }
         }
     }
-    currentPiece = rotatedPiece;
 }

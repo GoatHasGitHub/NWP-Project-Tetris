@@ -6,6 +6,7 @@
 
 class Tetris {
 public:
+    Tetris();
     void Initialize();
     void Update();
     void Draw(HDC hdc);
@@ -17,10 +18,13 @@ public:
 private:
     static const int BOARD_WIDTH = 10;
     static const int BOARD_HEIGHT = 20;
-    std::vector<std::vector<int>> board;
+    std::array<std::array<int, BOARD_HEIGHT>, BOARD_HEIGHT> board;
     std::array<std::array<int, 4>, 4> currentPiece;
-    int pieceX, pieceY;
+    int currentX, currentY;
+    bool gameOver;
 
-    void DrawBlock(HDC hdc, int x, int y, bool filled);
-    bool IsPositionValid(int newX, int newY, const std::array<std::array<int, 4>, 4>& piece);
+    void NewPiece();
+    void ClearLines();
+    void PlacePiece();
+    bool CanMove(const std::array<std::array<int, 4>, 4>& piece, int x, int y)const;
 };
