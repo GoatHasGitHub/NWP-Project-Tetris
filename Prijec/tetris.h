@@ -20,6 +20,7 @@ private:
     static const int BOARD_HEIGHT = 20;
     std::array<std::array<int, BOARD_HEIGHT>, BOARD_HEIGHT> board;
     std::array<std::array<int, 4>, 4> currentPiece;
+    int currentPieceIndex;
     int currentX, currentY;
     bool gameOver;
 

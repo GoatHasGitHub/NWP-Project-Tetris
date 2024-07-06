@@ -12,20 +12,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wcex.lpfnWndProc = Game::WndProc;
     wcex.cbClsExtra = 0;
     wcex.cbWndExtra = sizeof(LONG_PTR);
+    wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wcex.hCursor = LoadCursor(NULL, IDC_APPSTARTING);
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = NULL;
-    wcex.lpszClassName = "TetrisClass";
+    wcex.lpszClassName = L"TetrisClass";
+    wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 
     if (!RegisterClassEx(&wcex)) {
-        MessageBox(NULL, "Call to RegisterClassEx Failed", "Windows Destop Guided tour", NULL);
+        MessageBox(NULL, L"Call to RegisterClassEx Failed", L"Windows Destop Guided tour", NULL);
         return 1;
     }
 
-    HWND hWnd = CreateWindow("TetrisClass", "Tetris", WS_OVERLAPPEDWINDOW,
+    HWND hWnd = CreateWindow(L"TetrisClass", L"Tetris", WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL, NULL, hInstance, NULL);
 
     if (!hWnd) {
-        MessageBox(NULL, "Call to CreateWindow Failed", "Windows Destop Guided tour", NULL);
+        MessageBox(NULL, L"Call to CreateWindow Failed", L"Windows Destop Guided tour", NULL);
         return 1;
     }
 

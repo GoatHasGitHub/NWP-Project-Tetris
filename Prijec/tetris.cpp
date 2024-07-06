@@ -13,12 +13,24 @@ std::array<std::array<std::array<int, 4>, 4>, 7> shapes = { {
     {{ {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }}   // Z
 } };
 
+std::array<COLORREF, 7> pieceColors = {
+    RGB(0, 255, 255),  // I - Cyan
+    RGB(0, 0, 255),    // J - Blue
+    RGB(255, 165, 0),  // L - Orange
+    RGB(255, 255, 0),  // O - Yellow
+    RGB(0, 255, 0),    // S - Green
+    RGB(128, 0, 128),  // T - Purple
+    RGB(255, 0, 0)     // Z - Red
+};
+
 Tetris::Tetris() {
     Initialize();
 }
 
 void Tetris::Initialize() {
-    board.fill({ 0 });
+    for (auto& row : board){
+        row.fill(0);
+    }
     NewPiece();
     gameOver = false;
 }
@@ -70,10 +82,10 @@ void Tetris::Rotate() {
 }
 
 void Tetris::PlacePiece() {
-    for (int y = 0; y < BOARD_HEIGHT; y++) {
-        for (int x = 0; x < BOARD_HEIGHT; x++) {
-            if (currentPiece[y][x]) {
-                board[currentY + y][currentX + x] = currentPiece[y][x];
+    for (int y = 0; y < 4; y++) {
+        for (int x = 0; x < 4; x++) {
+            if (currentPiece[y][x] && (currentY + y < BOARD_HEIGHT) && (currentX + x < BOARD_WIDTH)) {
+                board[currentY + y][currentX + x] = currentPieceIndex + 1;
             }
         }
     }
@@ -133,10 +145,15 @@ void Tetris::Draw(HDC hdc) {
             rect.bottom = rect.top + 30;
 
             if (board[y][x]) {
-                FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+                int colorIndex = board[y][x] - 1;
+                if (colorIndex >= 0 && colorIndex < pieceColors.size()) {
+                    HBRUSH pieceBrush = CreateSolidBrush(pieceColors[colorIndex]);
+                    FillRect(hdc, &rect, pieceBrush);
+                    DeleteObject(pieceBrush);
+                }
             }
             else {
-                FrameRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+                FrameRect(hdc, &rect, (HBRUSH)GetSysColorBrush(BLACK_BRUSH));
             }
         }
     }
@@ -145,11 +162,15 @@ void Tetris::Draw(HDC hdc) {
     for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
             if (currentPiece[py][px]) {
-                rect.left = (currentX + px) * 30;
-                rect.top = (currentY + py) * 30;
+                int boardX = currentX + px;
+                int boardY = currentY + py;
+                rect.left = boardX * 30;
+                rect.top = boardY * 30;
                 rect.right = rect.left + 30;
                 rect.bottom = rect.top + 30;
-                FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+                HBRUSH pieceBrush = CreateSolidBrush(pieceColors[currentPieceIndex]);
+                FillRect(hdc, &rect, pieceBrush);
+                DeleteObject(pieceBrush);
             }
         }
     }
