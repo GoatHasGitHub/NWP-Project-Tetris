@@ -25,7 +25,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     }
 
     HWND hWnd = CreateWindow(L"TetrisClass", L"Tetris", WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 800, 600, NULL, NULL, hInstance, NULL);
+        CW_USEDEFAULT, CW_USEDEFAULT, 400, 800, NULL, NULL, hInstance, NULL);
 
     if (!hWnd) {
         MessageBox(NULL, L"Call to CreateWindow Failed", L"Windows Destop Guided tour", NULL);

@@ -1,16 +1,45 @@
 #include "tetris.h"
 #include <array>
 #include <vector>
+#include <ctime>
+#include <cstdlib>
 
 // Tetriminoi
 std::array<std::array<std::array<int, 4>, 4>, 7> shapes = { {
-    {{ {1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // I
-    {{ {1, 1, 1, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // J
-    {{ {1, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // L
-    {{ {1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // O
-    {{ {1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // S
-    {{ {1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // T
-    {{ {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }}   // Z
+    {{ {1, 1, 1, 1},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0} }},  // I
+
+    {{ {1, 1, 1, 0},
+    {1, 0, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0} }},  // J
+
+    {{ {1, 1, 1, 0},
+    {0, 0, 1, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0} }},  // L
+
+    {{ {1, 1, 0, 0},
+    {1, 1, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0} }},  // O
+
+    {{ {1, 1, 0, 0},
+    {0, 1, 1, 0},
+    {0, 0, 0, 0}, 
+    {0, 0, 0, 0} }},  // S
+
+    {{ {1, 1, 1, 0},
+    {0, 1, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0} }},  // T
+
+    {{ {0, 1, 1, 0},
+    {1, 1, 0, 0},
+    {0, 0, 0, 0},
+    {0, 0, 0, 0} }}   // Z
 } };
 
 std::array<COLORREF, 7> pieceColors = {
@@ -52,7 +81,7 @@ void Tetris::MoveLeft() {
 }
 
 void Tetris::MoveRight() {
-    if (CanMove(currentPiece, currentX + 1, currentY)) {
+    if (CanMove(currentPiece, currentX, currentY+1)) {
         currentX++;
     }
 }
@@ -132,7 +161,7 @@ bool Tetris::CanMove(const std::array<std::array<int, 4>, 4>& piece, int x, int 
 }
 
 void Tetris::Update() {
-
+    MoveDown();
 }
 
 void Tetris::Draw(HDC hdc) {
@@ -158,7 +187,7 @@ void Tetris::Draw(HDC hdc) {
         }
     }
 
-    // Draw the current piece
+
     for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
             if (currentPiece[py][px]) {

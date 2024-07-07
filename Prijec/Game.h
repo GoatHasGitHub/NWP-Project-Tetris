@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include "tetris.h"
+#include "timer.h"
 
 class Game {
 public:
@@ -15,7 +16,6 @@ public:
 
 private:
     Tetris tetris;
-    static constexpr UINT_PTR TIMER_ID = 1;
     static constexpr UINT TIMER_INTERVAL = 500;
 };
 

@@ -1,0 +1,2 @@
+#define TIMER_CONSTANTS_H
+#define TIMER_ID 1
