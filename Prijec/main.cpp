@@ -20,7 +20,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
 
     if (!RegisterClassEx(&wcex)) {
-        MessageBox(NULL, L"Call to RegisterClassEx Failed", L"Windows Destop Guided tour", NULL);
         return 1;
     }
 
@@ -28,7 +27,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         CW_USEDEFAULT, CW_USEDEFAULT, 400, 800, NULL, NULL, hInstance, NULL);
 
     if (!hWnd) {
-        MessageBox(NULL, L"Call to CreateWindow Failed", L"Windows Destop Guided tour", NULL);
         return 1;
     }
 
