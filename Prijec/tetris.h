@@ -3,7 +3,6 @@
 #include <windows.h>
 #include <vector>
 #include <array>
-#include "timer.h"
 
 class Tetris {
 public:
@@ -20,19 +19,13 @@ public:
 private:
     static const int BOARD_WIDTH = 10;
     static const int BOARD_HEIGHT = 20;
-    std::array<std::array<int, BOARD_HEIGHT>, BOARD_HEIGHT> board;
+    std::array<std::array<int, BOARD_WIDTH>, BOARD_HEIGHT> board;
     std::array<std::array<int, 4>, 4> currentPiece;
     int currentPieceIndex;
     int currentX, currentY;
     bool gameOver;
 
-    /*int score;
-    int speedLevel;
-    int LinesCleard;
-    HWND hWnd;*/
-
     void ClearLines();
     void PlacePiece();
-    void UpdateSpeed();
-    bool CanMove(const std::array<std::array<int, 4>, 4>& piece, int x, int y)const;
+    bool CanMove(const std::array<std::array<int, 4>, 4>& piece, int x, int y) const;
 };

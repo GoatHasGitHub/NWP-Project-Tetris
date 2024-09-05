@@ -1,50 +1,79 @@
 #include <windows.h>
-#include "game.h"
+#include "tetris.h"
 
-#define TIMER_ID 1
-#define TIMER_INTERVAL 500 //ms
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    Tetris* game = reinterpret_cast<Tetris*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
+    switch (msg) {
+    case WM_CREATE:
+    {
+        CREATESTRUCT* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
+        game = reinterpret_cast<Tetris*>(cs->lpCreateParams);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(game));
+    }
+    break;
+    case WM_KEYDOWN:
+        if (game) {
+            switch (wParam) {
+            case VK_LEFT:
+                game->MoveLeft();
+                break;
+            case VK_RIGHT:
+                game->MoveRight();
+                break;
+            case VK_DOWN:
+                game->MoveDown();
+                break;
+            case VK_UP:
+                game->Rotate();
+                break;
+            }
+            InvalidateRect(hwnd, nullptr, TRUE);
+        }
+        break;
+    case WM_PAINT:
+        if (game) {
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hwnd, &ps);
+            game->Draw(hdc);
+            EndPaint(hwnd, &ps);
+        }
+        break;
+    case WM_TIMER:
+        if (game) {
+            game->Update();
+            InvalidateRect(hwnd, nullptr, TRUE);
+        }
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    default:
+        return DefWindowProc(hwnd, msg, wParam, lParam);
+    }
+
+    return 0;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    const wchar_t* className = L"TetrisWindowClass";
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, WndProc, 0, 0, hInstance, nullptr, nullptr, nullptr, nullptr, className, nullptr };
 
-    WNDCLASSEX wcex = { 0 };
-    wcex.cbSize = sizeof(WNDCLASSEX);
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = Game::WndProc;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = sizeof(LONG_PTR);
-    wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wcex.hCursor = LoadCursor(NULL, IDC_APPSTARTING);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = NULL;
-    wcex.lpszClassName = L"TetrisClass";
-    wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
+    RegisterClassEx(&wc);
 
-    if (!RegisterClassEx(&wcex)) {
-        return 1;
-    }
+    Tetris game;
+    HWND hwnd = CreateWindowEx(0, className, L"Tetris", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 300, 600, nullptr, nullptr, hInstance, &game);
 
-    HWND hWnd = CreateWindow(L"TetrisClass", L"Tetris", WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT, CW_USEDEFAULT, 400, 800, NULL, NULL, hInstance, NULL);
+    ShowWindow(hwnd, nCmdShow);
+    UpdateWindow(hwnd);
 
-    if (!hWnd) {
-        return 1;
-    }
+    SetTimer(hwnd, 1, 500, nullptr);
 
-    ShowWindow(hWnd, nCmdShow);
-    UpdateWindow(hWnd);
-
-    Game game;
-    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)&game);
-
-    SetTimer(hWnd, TIMER_ID, TIMER_INTERVAL, NULL);
-
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
+    MSG msg = { 0 };
+    while (GetMessage(&msg, nullptr, 0, 0)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
 
-    KillTimer(hWnd, TIMER_ID);
-
-    return (int)msg.wParam;
+    return static_cast<int>(msg.wParam);
 }

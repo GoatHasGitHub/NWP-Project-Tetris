@@ -4,44 +4,18 @@
 #include <ctime>
 #include <cstdlib>
 
-// Tetriminoi
+// Tetrimino shapes
 std::array<std::array<std::array<int, 4>, 4>, 7> shapes = { {
-    {{ {1, 1, 1, 1},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0} }},  // I
-
-    {{ {1, 1, 1, 0},
-    {1, 0, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0} }},  // J
-
-    {{ {1, 1, 1, 0},
-    {0, 0, 1, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0} }},  // L
-
-    {{ {1, 1, 0, 0},
-    {1, 1, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0} }},  // O
-
-    {{ {1, 1, 0, 0},
-    {0, 1, 1, 0},
-    {0, 0, 0, 0}, 
-    {0, 0, 0, 0} }},  // S
-
-    {{ {1, 1, 1, 0},
-    {0, 1, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0} }},  // T
-
-    {{ {0, 1, 1, 0},
-    {1, 1, 0, 0},
-    {0, 0, 0, 0},
-    {0, 0, 0, 0} }}   // Z
+    {{ {1, 1, 1, 1}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // I
+    {{ {1, 1, 1, 0}, {1, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // J
+    {{ {1, 1, 1, 0}, {0, 0, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // L
+    {{ {1, 1, 0, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // O
+    {{ {1, 1, 0, 0}, {0, 1, 1, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // S
+    {{ {1, 1, 1, 0}, {0, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }},  // T
+    {{ {0, 1, 1, 0}, {1, 1, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0} }}   // Z
 } };
 
+// Tetrimino colors
 std::array<COLORREF, 7> pieceColors = {
     RGB(0, 255, 255),  // I - Cyan
     RGB(0, 0, 255),    // J - Blue
@@ -57,7 +31,7 @@ Tetris::Tetris() {
 }
 
 void Tetris::Initialize() {
-    for (auto& row : board){
+    for (auto& row : board) {
         row.fill(0);
     }
     NewPiece();
@@ -65,8 +39,9 @@ void Tetris::Initialize() {
 }
 
 void Tetris::NewPiece() {
-    currentPiece = shapes[rand() % shapes.size()];
-    currentX = 3;
+    currentPieceIndex = std::rand() % shapes.size();
+    currentPiece = shapes[currentPieceIndex];
+    currentX = BOARD_WIDTH / 2 - 2;
     currentY = 0;
 
     if (!CanMove(currentPiece, currentX, currentY)) {
@@ -81,7 +56,7 @@ void Tetris::MoveLeft() {
 }
 
 void Tetris::MoveRight() {
-    if (CanMove(currentPiece, currentX, currentY+1)) {
+    if (CanMove(currentPiece, currentX + 1, currentY)) {
         currentX++;
     }
 }
@@ -166,6 +141,7 @@ void Tetris::Update() {
 
 void Tetris::Draw(HDC hdc) {
     RECT rect;
+
     for (int y = 0; y < BOARD_HEIGHT; y++) {
         for (int x = 0; x < BOARD_WIDTH; x++) {
             rect.left = x * 30;
@@ -182,24 +158,28 @@ void Tetris::Draw(HDC hdc) {
                 }
             }
             else {
+                FillRect(hdc, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
                 FrameRect(hdc, &rect, (HBRUSH)GetSysColorBrush(BLACK_BRUSH));
             }
         }
     }
-
 
     for (int py = 0; py < 4; py++) {
         for (int px = 0; px < 4; px++) {
             if (currentPiece[py][px]) {
                 int boardX = currentX + px;
                 int boardY = currentY + py;
-                rect.left = boardX * 30;
-                rect.top = boardY * 30;
-                rect.right = rect.left + 30;
-                rect.bottom = rect.top + 30;
-                HBRUSH pieceBrush = CreateSolidBrush(pieceColors[currentPieceIndex]);
-                FillRect(hdc, &rect, pieceBrush);
-                DeleteObject(pieceBrush);
+
+                if (boardX >= 0 && boardX < BOARD_WIDTH && boardY >= 0 && boardY < BOARD_HEIGHT) {
+                    rect.left = boardX * 30;
+                    rect.top = boardY * 30;
+                    rect.right = rect.left + 30;
+                    rect.bottom = rect.top + 30;
+
+                    HBRUSH pieceBrush = CreateSolidBrush(pieceColors[currentPieceIndex]);
+                    FillRect(hdc, &rect, pieceBrush);
+                    DeleteObject(pieceBrush);
+                }
             }
         }
     }
