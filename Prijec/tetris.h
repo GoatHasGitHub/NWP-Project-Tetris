@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <array>
+#include "timer.h"
 
 class Tetris {
 public:
