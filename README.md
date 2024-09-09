@@ -1,4 +1,7 @@
-Projekt Tetris ima nasumičnu promjenu boje tetrominoa.
-Pomicanje i rotacija tetrominoa se odvija s tipkama sa strelicama. Lijevo ili desno za pomicanje, a gore za rotaciju.
-Pritiscima tipke strelice za dolje se ubrzava pad tetrominoa.
-Brisanje punih redova se događa kada se red napuni.
+Ovo je Tetris igra napravljena u Visual Studiju koristeći Windows API.
+Tetrominoi se kontroliraju pomoću tipki sa strelicama.
+Tipka lijevo pomiče tetromino lijevo, a tipka za desno pomiče tetromino desno.
+Tipka gore rotira tetromino, a tipka dolje ubrzava spuštanje tetrominoa.
+Tipke se mogu držati da se tetromino brže pomiče lijevo, desno ili dolje.
+Svaki tetromino ima svoju boju.
+Redovi koji su popunjeni se očiste.
