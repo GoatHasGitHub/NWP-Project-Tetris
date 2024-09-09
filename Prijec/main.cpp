@@ -57,12 +57,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
     const wchar_t* className = L"TetrisWindowClass";
-    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, WndProc, 0, 0, hInstance, nullptr, nullptr, nullptr, nullptr, className, nullptr };
+    WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, WndProc, 0, 0, hInstance, LoadIcon(nullptr, IDI_APPLICATION), LoadCursor(nullptr, IDC_ARROW), (HBRUSH)(COLOR_WINDOW + 1), nullptr, className, LoadIcon(nullptr, IDI_APPLICATION) };
 
     RegisterClassEx(&wc);
 
     Tetris game;
-    HWND hwnd = CreateWindowEx(0, className, L"Tetris", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 300, 600, nullptr, nullptr, hInstance, &game);
+    HWND hwnd = CreateWindowEx(0, className, L"Tetris", WS_BORDER | WS_SYSMENU, CW_USEDEFAULT, CW_USEDEFAULT, 320, 640, nullptr, nullptr, hInstance, &game);
 
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);

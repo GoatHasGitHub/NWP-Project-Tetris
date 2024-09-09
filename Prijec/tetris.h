@@ -1,7 +1,6 @@
 #define TETRIS_H
 
 #include <windows.h>
-#include <vector>
 #include <array>
 
 class Tetris {

@@ -1,8 +1,6 @@
 #include "tetris.h"
 #include <array>
-#include <vector>
 #include <ctime>
-#include <cstdlib>
 
 // Tetrimino shapes
 std::array<std::array<std::array<int, 4>, 4>, 7> shapes = { {
@@ -142,6 +140,9 @@ void Tetris::Update() {
 void Tetris::Draw(HDC hdc) {
     RECT rect;
 
+    HBRUSH backgroundBrush = GetSysColorBrush(COLOR_WINDOW);
+    HBRUSH borderBrush = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+
     for (int y = 0; y < BOARD_HEIGHT; y++) {
         for (int x = 0; x < BOARD_WIDTH; x++) {
             rect.left = x * 30;
@@ -158,9 +159,9 @@ void Tetris::Draw(HDC hdc) {
                 }
             }
             else {
-                FillRect(hdc, &rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
-                FrameRect(hdc, &rect, (HBRUSH)GetSysColorBrush(BLACK_BRUSH));
+                FillRect(hdc, &rect, backgroundBrush);
             }
+            FrameRect(hdc, &rect, borderBrush);
         }
     }
 
@@ -169,17 +170,13 @@ void Tetris::Draw(HDC hdc) {
             if (currentPiece[py][px]) {
                 int boardX = currentX + px;
                 int boardY = currentY + py;
-
-                if (boardX >= 0 && boardX < BOARD_WIDTH && boardY >= 0 && boardY < BOARD_HEIGHT) {
-                    rect.left = boardX * 30;
-                    rect.top = boardY * 30;
-                    rect.right = rect.left + 30;
-                    rect.bottom = rect.top + 30;
-
-                    HBRUSH pieceBrush = CreateSolidBrush(pieceColors[currentPieceIndex]);
-                    FillRect(hdc, &rect, pieceBrush);
-                    DeleteObject(pieceBrush);
-                }
+                rect.left = boardX * 30;
+                rect.top = boardY * 30;
+                rect.right = rect.left + 30;
+                rect.bottom = rect.top + 30;
+                HBRUSH pieceBrush = CreateSolidBrush(pieceColors[currentPieceIndex]);
+                FillRect(hdc, &rect, pieceBrush);
+                DeleteObject(pieceBrush);
             }
         }
     }
